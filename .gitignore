@@ -1,0 +1,33 @@
+# Build output.
+dist/
+.go/
+.gocache/
+*.test
+*.out
+coverage.out
+
+# The binary, when built into the repo root with `go build -o whetstone`.
+# Leading slash so it cannot match the cmd/whetstone/ directory.
+/whetstone
+/whetstone.exe
+
+# Workspaces are a user's working notes and source excerpts, not source code.
+whetstone.json
+*.whetstone.json
+
+# Credentials must never be committed. Whetstone itself stores the key outside
+# the repo (see docs/adr/0002-provider-seam.md), so nothing here should ever
+# match — these are a backstop for a key file created by hand or pointed at
+# with -key-file.
+credentials
+*.key
+.env
+.env.*
+*api*key*
+*API*KEY*
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+*.swp

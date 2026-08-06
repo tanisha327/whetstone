@@ -1,0 +1,440 @@
+/* Whetstone. One stylesheet, no framework, no build step.
+   Colours come from a small set of custom properties so light and dark are one
+   change, not two stylesheets. */
+
+:root {
+  --bg: #fbfaf8;
+  --panel: #ffffff;
+  --ink: #1c1b19;
+  --dim: #6b6862;
+  --line: #e3e0da;
+  --accent: #7a5cff;
+  --warn: #b8860b;
+  --ok: #2e7d32;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17161a;
+    --panel: #1e1d22;
+    --ink: #e8e6e3;
+    --dim: #928e88;
+    --line: #302e35;
+    --accent: #a48cff;
+    --warn: #d7a13b;
+    --ok: #6fbf73;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font: 15px/1.55 var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+header, footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 13px;
+}
+footer { border-bottom: 0; border-top: 1px solid var(--line); }
+.grow { flex: 1; }
+.dim { color: var(--dim); }
+
+/* Column widths are custom properties so the drag handles can change them and
+   localStorage can remember them across sessions. */
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns:
+    var(--col-left, 260px) 6px 1fr 6px var(--col-right, 340px);
+  min-height: 0;
+}
+
+/* Wide mode collapses both side panels for uninterrupted reading. */
+body.wide main { grid-template-columns: 0 0 1fr 0 0; }
+body.wide #sources,
+body.wide #argument,
+body.wide .resizer { display: none; }
+
+.resizer {
+  cursor: col-resize;
+  background: var(--line);
+  transition: background .12s;
+}
+.resizer:hover, .resizer.dragging { background: var(--accent); }
+body.resizing { cursor: col-resize; user-select: none; }
+
+main > section {
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-right: 1px solid var(--line);
+  min-width: 0;
+}
+main > section:last-child { border-right: 0; }
+
+h2 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--dim);
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+h3 { margin: 0 0 2px; font-size: 17px; }
+
+button {
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); color: var(--accent); }
+button.quiet { border: 0; background: none; color: var(--dim); padding: 2px 4px; }
+button.quiet:hover { color: var(--accent); }
+button:disabled { opacity: .5; cursor: default; }
+
+select {
+  font: inherit;
+  font-size: 12px;
+  padding: 3px 6px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+/* --- Sources --- */
+
+.doc-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 10px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.section-row:hover { background: var(--bg); }
+.section-row.active { background: var(--bg); box-shadow: inset 2px 0 0 var(--accent); }
+.section-row .mark { color: var(--dim); width: 1em; flex: none; }
+.section-row.read .mark { color: var(--ok); }
+.section-row .flag { color: var(--warn); flex: none; }
+.section-row .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* --- Reader --- */
+
+#reader-text {
+  font: inherit;
+  white-space: pre-wrap;
+  margin: 12px 0 0;
+  max-width: 68ch;
+}
+
+#reader-meta { font-size: 12px; margin-bottom: 10px; }
+
+.lens-box {
+  border-left: 2px solid var(--accent);
+  padding: 6px 0 6px 10px;
+  margin: 10px 0;
+  font-size: 13px;
+}
+.lens-box ul { margin: 6px 0 0; padding-left: 18px; }
+.lens-box li { margin: 2px 0; }
+
+.empty { color: var(--dim); max-width: 46ch; margin-top: 40px; }
+
+.toolbar { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+
+/* --- Provocations --- */
+
+.provocation {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--warn);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 8px 0;
+  font-size: 13px;
+  background: var(--panel);
+}
+.provocation.resolved { border-left-color: var(--ok); opacity: .72; }
+.prov-head { display: flex; gap: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.prov-head .kind { color: var(--accent); }
+.prov-head .status { color: var(--dim); }
+.prov-text { margin: 4px 0; }
+.prov-response { font-size: 12px; font-style: italic; }
+.prov-actions { display: flex; gap: 6px; margin-top: 6px; }
+
+/* --- Argument --- */
+
+.node {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 8px 0;
+  background: var(--panel);
+}
+.node.active { border-color: var(--accent); }
+.node-head { display: flex; align-items: baseline; gap: 6px; }
+.node-title { font-weight: 600; font-size: 14px; flex: 1; cursor: pointer; }
+.node-badges { font-size: 11px; color: var(--dim); display: flex; gap: 5px; }
+
+textarea {
+  font: inherit;
+  font-size: 13px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 6px 8px;
+  margin-top: 6px;
+  resize: vertical;
+  min-height: 60px;
+}
+textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+textarea.draft { font-family: var(--mono); font-size: 12px; }
+
+.field-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--dim);
+  margin-top: 8px;
+}
+
+.cites { font-size: 12px; color: var(--dim); margin-top: 6px; }
+.cites div { margin: 2px 0; }
+
+/* --- Inline forms ---
+   Everything you type happens in place. There are no modal dialogs: a box that
+   blocks the page is a poor place to compose a sentence, and this tool is
+   mostly about composing sentences. */
+
+input {
+  font: inherit;
+  font-size: 13px;
+  width: 100%;
+  padding: 6px 8px;
+  margin-top: 6px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--ink);
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+.inline-form {
+  border-top: 1px solid var(--line);
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.point-form, .paste-form {
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px;
+  margin: 8px 0;
+  background: var(--panel);
+}
+.paste-form textarea { font-family: var(--mono); font-size: 12px; min-height: 180px; }
+
+#question-form {
+  position: absolute;
+  top: 38px;
+  left: 90px;
+  z-index: 10;
+  width: min(560px, 80vw);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--panel);
+  padding: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
+}
+header { position: relative; }
+
+#status.error { color: #c0392b; }
+#status.busy { color: var(--warn); }
+
+/* Selection bar: docked to the bottom of the reading pane while text is
+   selected, so making a point never scrolls the passage out of view. */
+#selection-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-top: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--panel);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, .10);
+  font-size: 12px;
+}
+#selection-bar[hidden] { display: none; }
+#sel-preview { font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#sel-point { border-color: var(--accent); color: var(--accent); }
+
+/* The passage is selectable; nothing else needs to be. */
+#reader-text { user-select: text; cursor: text; }
+
+/* --- Sidebar: heading vs prose ---
+   A real markdown heading is a title. A chunk of prose only has a title we
+   synthesised from its opening words. Rendering them identically is what made
+   the sidebar unreadable. */
+
+.section-row .label.is-heading { font-weight: 600; }
+.section-row .label.is-prose { font-style: italic; color: var(--dim); }
+
+/* --- Citations: clickable back to the source --- */
+
+.cites .cite {
+  cursor: pointer;
+  border-left: 2px solid var(--line);
+  padding: 2px 0 2px 8px;
+  margin: 3px 0;
+}
+.cites .cite:hover { border-left-color: var(--accent); color: var(--ink); }
+
+#reader-text mark {
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
+  color: inherit;
+  border-radius: 2px;
+}
+
+/* --- Overlay: tone dimensions and their alternatives --- */
+
+.overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  width: min(640px, 92vw);
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 14px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+}
+.overlay.wide { width: min(860px, 94vw); }
+
+.dim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
+  margin: 10px 0;
+}
+.dim-grid button { text-align: left; padding: 7px 9px; }
+
+.alt {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.alt:hover { border-color: var(--accent); }
+.alt.original { border-style: dashed; opacity: .8; }
+
+/* --- Source editing --- */
+
+textarea.source-edit {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 220px;
+}
+
+#reader-edit { max-width: 68ch; }
+
+.cites .cite.stale { border-left-color: var(--warn); color: var(--warn); }
+
+/* --- Print / PDF ---
+   The browser's own print-to-PDF beats anything a hand-rolled generator would
+   produce, and costs no dependency. Printing renders the argument only: the
+   panels, buttons and provocation controls are all screen furniture. */
+
+#print-view { display: none; }
+
+@media print {
+  header, footer, main, #selection-bar, .overlay, .resizer { display: none !important; }
+
+  #print-view {
+    display: block !important;
+    max-width: none;
+    font: 11pt/1.5 Georgia, "Times New Roman", serif;
+    color: #000;
+  }
+  #print-view h1 { font-size: 20pt; margin: 0 0 4pt; }
+  #print-view h2 { font-size: 14pt; margin: 18pt 0 4pt; page-break-after: avoid; }
+  #print-view h3 { font-size: 12pt; margin: 14pt 0 4pt; page-break-after: avoid; }
+  #print-view p { margin: 0 0 8pt; orphans: 3; widows: 3; }
+  #print-view blockquote {
+    margin: 6pt 0 8pt 18pt;
+    font-style: italic;
+    color: #444;
+    border-left: 2pt solid #bbb;
+    padding-left: 8pt;
+  }
+  #print-view .meta {
+    margin-top: 18pt;
+    padding-top: 6pt;
+    border-top: 1pt solid #bbb;
+    font-size: 9pt;
+    color: #444;
+  }
+  @page { margin: 20mm; }
+}
+
+/* The lens picker sits with the passage it applies to, not in the header: a
+   mode selector far from its effect is a mode selector nobody touches. */
+#lens-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+
+/* The question can hold several lines, so the header shows only the first and
+   the full text lives in the tooltip and the editor. */
+#question {
+  max-width: 46ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+#question-form textarea { min-height: 76px; font-size: 13px; }

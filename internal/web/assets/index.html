@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whetstone</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header>
+  <strong>Whetstone</strong>
+  <button id="question" class="quiet" title="What are you trying to answer? One line per question.">no question set</button>
+  <span class="grow"></span>
+  <select id="export-scope" title="What to include in an export">
+    <option value="all">sources + argument</option>
+    <option value="argument">argument only</option>
+    <option value="sources">sources only</option>
+  </select>
+  <button id="export-docx" class="quiet" title="Download as a Word file">.docx</button>
+  <button id="export-pdf" class="quiet" title="Print, or save as PDF">PDF</button>
+  <button id="wide" class="quiet" title="Hide the side panels for uninterrupted reading">hide panels</button>
+  <span id="engagement" class="dim"></span>
+</header>
+
+<main>
+  <!-- Sources: what you are reading. -->
+  <section id="sources">
+    <h2>Sources <button id="add-doc" class="quiet">+ paste</button></h2>
+    <div id="doc-list"></div>
+  </section>
+
+  <div class="resizer" id="resize-left" title="Drag to resize"></div>
+
+  <!-- Reading pane: the passage itself, plus the lens and its provocations. -->
+  <section id="reader">
+    <div id="reader-empty" class="empty">
+      <p>Paste a document to begin.</p>
+      <p class="dim">You read the sections yourself. The lens tells you where to
+      look; the provocations argue with you. Neither replaces the reading.</p>
+    </div>
+    <article id="reader-body" hidden>
+      <h3 id="reader-title"></h3>
+      <div id="reader-meta" class="dim"></div>
+      <div id="reader-lens" class="lens-box"></div>
+      <div id="lens-row">
+        <span class="dim">Read this for</span>
+        <select id="lens" title="What to read this passage for"></select>
+      </div>
+      <!-- Fixed containers, emptied on each render. Appending to the article
+           instead would pile up a new toolbar every time the page redrew. -->
+      <div id="reader-actions" class="toolbar"></div>
+      <pre id="reader-text"></pre>
+      <div id="reader-edit" hidden></div>
+      <div id="reader-provocations"></div>
+    </article>
+
+    <!-- Appears while text is selected in the passage above. -->
+    <div id="selection-bar" hidden>
+      <span id="sel-preview" class="dim"></span>
+      <span class="grow"></span>
+      <button id="sel-point">+ new point</button>
+      <button id="sel-cite">cite</button>
+      <button id="sel-note">quote in notes</button>
+      <button id="sel-tone">say it differently…</button>
+    </div>
+  </section>
+
+  <div class="resizer" id="resize-right" title="Drag to resize"></div>
+
+  <!-- Argument: yours. Nothing here is generated. -->
+  <section id="argument">
+    <h2>Your argument <button id="add-point" class="quiet">+ point</button></h2>
+    <div id="outline"></div>
+  </section>
+</main>
+
+<footer>
+  <span id="status"></span>
+  <span class="grow"></span>
+  <span id="path" class="dim"></span>
+</footer>
+
+<!-- Populated only when printing; see printDocument(). -->
+<div id="print-view" hidden></div>
+
+<script>window.WHETSTONE_TOKEN = "__TOKEN__";</script>
+<script src="/static/app.js"></script>
+</body>
+</html>
